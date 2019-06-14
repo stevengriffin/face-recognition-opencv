@@ -1,0 +1,48 @@
+C: Convolutional
+
+
+
+input
+@152x152x3 Pixels x RGB Frontalization
+32x11x11x3 @142x142 Conv
+ReLU
+32x3x3x32 @71x71 Max-Pooling
+ReLU
+16x9x9x32 @63x63 Conv 
+ReLU
+16x9x9x16 @55x55 Locally-connected
+ReLU
+16x7x7x16 @25x25 Locally-connected
+ReLU
+16x5x5x16 @21x21 Locally-connected
+ReLU
+Fully-connected
+ReLU
+Dropout
+Fully-connected (output)
+
+
+
+
+
+
+
+Train or find a neural network that outputs face embedding vectors. While the students could use a pretrained neural network such as those provided by OpenFace, training their own
+
+
+Task 1: Use a pretrained network for generating face embeddings such as those provided in https://github.com/davidsandberg/facenet or https://github.com/cmusatyalab/openface.
+
+
+set up virtualenvwrapper or conda environment
+git clone https://github.com/davidsandberg/facenet.git
+install necessary Python modules with pip. Note: tensorflow==1.7 is important.
+Complete https://github.com/davidsandberg/facenet/wiki/Validate-on-lfw
+Note: functions from scipy.misc need to be replaced by functions from imageio and scikit-image to get step 4 of this link to work with modern versions of scipy.
+Complete https://github.com/davidsandberg/facenet/wiki/Train-a-classifier-on-own-images
+
+
+
+
+Task 2: If there is time after completing Task 1, they should train their own face embedding network. This would be a good challenge and a showcase of the DGX's power, especially if they can figure out parallelized training across the Tesla cards or speed up hyperparameter tuning by training multiple models at once.
+
+Using datasets focused on surveillance footage such as ChokePoint (http://arma.sourceforge.net/chokepoint/) and SCFace (http://www.scface.org/) rather than OpenFace's celebrity images could be interesting. Students could generate new datasets of themselves using similar techniques.
