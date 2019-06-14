@@ -34,15 +34,29 @@ Task 1: Use a pretrained network for generating face embeddings such as those pr
 
 
 set up virtualenvwrapper or conda environment
-git clone https://github.com/davidsandberg/facenet.git
-install necessary Python modules with pip. Note: tensorflow==1.7 is important.
-Complete https://github.com/davidsandberg/facenet/wiki/Validate-on-lfw
-Note: functions from scipy.misc need to be replaced by functions from imageio and scikit-image to get step 4 of this link to work with modern versions of scipy.
-Complete https://github.com/davidsandberg/facenet/wiki/Train-a-classifier-on-own-images
 
+
+M1: face detector (neural network)
+
+M2: face embeddings generator (neural network)
+
+M3: face embeddings -> labels classifier (many options: support vector machine, decision tree, neural network)
+
+pipeline:
+detect face(s) in image with M1 and get a their bounding boxes.
+for each face, crop the image to the face, generate the face embeddings with M2, and match the face embeddings to a person's name with M3.
+output a list of names of people detected in the image and the bounding boxes of their faces.
 
 
 
 Task 2: If there is time after completing Task 1, they should train their own face embedding network. This would be a good challenge and a showcase of the DGX's power, especially if they can figure out parallelized training across the Tesla cards or speed up hyperparameter tuning by training multiple models at once.
 
 Using datasets focused on surveillance footage such as ChokePoint (http://arma.sourceforge.net/chokepoint/) and SCFace (http://www.scface.org/) rather than OpenFace's celebrity images could be interesting. Students could generate new datasets of themselves using similar techniques.
+
+
+
+git clone https://github.com/davidsandberg/facenet.git
+install necessary Python modules with pip. Note: tensorflow==1.7 is important.
+Complete https://github.com/davidsandberg/facenet/wiki/Validate-on-lfw
+Note: functions from scipy.misc need to be replaced by functions from imageio and scikit-image to get step 4 of this link to work with modern versions of scipy.
+Complete https://github.com/davidsandberg/facenet/wiki/Train-a-classifier-on-own-images
