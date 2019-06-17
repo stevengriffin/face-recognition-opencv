@@ -1,6 +1,3 @@
-C: Convolutional
-
-
 
 input
 @152x152x3 Pixels x RGB Frontalization
@@ -23,35 +20,47 @@ Fully-connected (output)
 
 
 
+Task: Learn how to capture video from a security camera and load it in Python. https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_gui/py_video_display/py_video_display.html
 
+Task: Build a dataset of surveillance footage of themselves. Organize it into a d
 
-
-
-Train or find a neural network that outputs face embedding vectors. While the students could use a pretrained neural network such as those provided by OpenFace, training their own
-
-
-Task 1: Use a pretrained network for generating face embeddings such as those provided in https://github.com/davidsandberg/facenet or https://github.com/cmusatyalab/openface.
-
-
-set up virtualenvwrapper or conda environment
-
+Task 1: Use a pretrained network for generating face embeddings such as those provided in https://github.com/davidsandberg/facenet or https://github.com/cmusatyalab/openface and a pretrained network for detecting faces such as the ones used in OpenCV.
 
 M1: face detector (neural network)
 
 M2: face embeddings generator (neural network)
 
-M3: face embeddings -> labels classifier (many options: support vector machine, decision tree, neural network)
+M3: face embeddings -> labels classifier (many options: support vector machine, decision tree, k-nearest neighbors, neural network)
 
-pipeline:
-detect face(s) in image with M1 and get a their bounding boxes.
+training pipeline:
+for each image in the training dataset, detect face in image with M1 and get bounding box.
+crop the image to the face and generate the face embeddings with M2. Add the face embedding to a list of vectors and the person's name to a list of labels. 
+fit a machine learning model to the face embeddings and labels.
+
+testing pipeline:
+for each image in the testing dataset, detect face(s) in image with M1 and get their bounding boxes.
 for each face, crop the image to the face, generate the face embeddings with M2, and match the face embeddings to a person's name with M3.
 output a list of names of people detected in the image and the bounding boxes of their faces.
+compute how many of the faces were predicted correctly by comparing the outputs to the labels
 
+production pipeline:
+when a new image arrives from the video cameras that might have a face, transfer it to the DGX and use M2 to find faces, if any exist, and if so, run M3 on the cropped image to recognize the names corresponding to the faces.
 
+updating dataset: Each time a new person is added to the face recognition system, we need to run M1 and M2 on the new images then retrain M3.
 
 Task 2: If there is time after completing Task 1, they should train their own face embedding network. This would be a good challenge and a showcase of the DGX's power, especially if they can figure out parallelized training across the Tesla cards or speed up hyperparameter tuning by training multiple models at once.
 
+Task 3: If there is time after completing Task 2, they should train their own face detection network.
+
 Using datasets focused on surveillance footage such as ChokePoint (http://arma.sourceforge.net/chokepoint/) and SCFace (http://www.scface.org/) rather than OpenFace's celebrity images could be interesting. Students could generate new datasets of themselves using similar techniques.
+
+
+
+
+
+
+
+
 
 
 

@@ -9,15 +9,15 @@ import os
 
 # construct the argument parser and parse the arguments
 ap = argparse.ArgumentParser()
-ap.add_argument("-i", "--dataset", required=True,
+ap.add_argument("-i", "--dataset", default="unprocessed_dataset",
 	help="path to input directory of faces + images")
-ap.add_argument("-e", "--embeddings", required=True,
+ap.add_argument("-e", "--embeddings", default="output/embeddings.pickle",
 	help="path to output serialized db of facial embeddings")
-ap.add_argument("-d", "--detector", required=True,
+ap.add_argument("-d", "--detector", default="face_detection_model",
 	help="path to OpenCV's deep learning face detector")
-ap.add_argument("-m", "--embedding-model", required=True,
+ap.add_argument("-m", "--embedding-model", default="nn4.small2.v1.t7",
 	help="path to OpenCV's deep learning face embedding model")
-ap.add_argument("-c", "--confidence", type=float, default=0.5,
+ap.add_argument("-c", "--confidence", type=float, default=0,
 	help="minimum probability to filter weak detections")
 args = vars(ap.parse_args())
 
@@ -87,7 +87,7 @@ for (i, imagePath) in enumerate(imagePaths):
 			(startX, startY, endX, endY) = box.astype("int")
 
 			# extract the face ROI and grab the ROI dimensions
-			face = image[startY:endY, startX:endX]
+			face = image #[startY:endY, startX:endX]
 			(fH, fW) = face.shape[:2]
 
 			# ensure the face width and height are sufficiently large
