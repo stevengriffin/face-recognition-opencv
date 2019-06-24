@@ -86,6 +86,7 @@ def train(model, attrib_dict, dataloaders, args):
             epoch_loss = running_loss / attrib_dict[phase].num_examples
             epoch_acc = running_corrects.double() / attrib_dict[phase].num_examples
 
+            # TODO val loss is backwards??
             print('{} Loss: {:.4f} Acc: {:.4f}'.format(
                 phase, epoch_loss, epoch_acc))
 

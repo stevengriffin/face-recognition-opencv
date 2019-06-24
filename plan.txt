@@ -19,18 +19,73 @@ Dropout
 Fully-connected (output)
 
 
+Open a terminal and clone the repository.
 
-Task: Learn how to capture video from a security camera and load it in Python. https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_gui/py_video_display/py_video_display.html
+git clone TODO
+cd TODO
 
-Task: Build a dataset of surveillance footage of themselves. Organize it into a d
+sudo apt-get install python-pip
+pip install virtualenvwrapper
+export WORKON_HOME=~/.virtualenvs
+mkdir -p $WORKON_HOME
+source /usr/local/bin/virtualenvwrapper.sh
+mkvirtualenv face
+pip install imutils numpy opencv-python torch Pillow scikit-learn progressbar2 amcrest
 
-Task 1: Use a pretrained network for generating face embeddings such as those provided in https://github.com/davidsandberg/facenet or https://github.com/cmusatyalab/openface and a pretrained network for detecting faces such as the ones used in OpenCV.
+Whenever you open a new terminal to work on the project, you'll need to switch to your virtual environment by executing:
+
+workon face
+
+
+Find the IP address, port, username, and password of the cameras. Learn to connect to the cameras, change their pan and tilt, save snapshots, and record streams with a Python script by reading https://python-amcrest.readthedocs.io/.
+
+Build a dataset of surveillance footage of yourselves. Record footage of each person with a variety of angles and lighting conditions. Organize it into a dataset with the following directory structure.
+
+dataset/
+    name1/
+        0001.jpg
+        0002.jpg
+        0003.jpg
+        ...
+    name2/
+        0001.jpg
+        0002.jpg
+        0003.jpg
+        ...
+    name3/
+        0001.jpg
+        0002.jpg
+        0003.jpg
+        ...
+        
+
+
 
 M1: face detector (neural network)
 
 M2: face embeddings generator (neural network)
 
 M3: face embeddings -> labels classifier (many options: support vector machine, decision tree, k-nearest neighbors, neural network)
+
+Generate face embeddings with OpenFace's neural network.
+Run extract_embeddings.py --dataset path/to/your/dataset 
+
+720p vs. 1080p
+Record time to process results
+
+
+
+
+
+
+
+
+
+
+
+
+Task 1: Use a pretrained network for generating face embeddings such as those provided in https://github.com/davidsandberg/facenet or https://github.com/cmusatyalab/openface and a pretrained network for detecting faces such as the ones used in OpenCV.
+
 
 training pipeline:
 for each image in the training dataset, detect face in image with M1 and get bounding box.
@@ -48,24 +103,3 @@ when a new image arrives from the video cameras that might have a face, transfer
 
 updating dataset: Each time a new person is added to the face recognition system, we need to run M1 and M2 on the new images then retrain M3.
 
-Task 2: If there is time after completing Task 1, they should train their own face embedding network. This would be a good challenge and a showcase of the DGX's power, especially if they can figure out parallelized training across the Tesla cards or speed up hyperparameter tuning by training multiple models at once.
-
-Task 3: If there is time after completing Task 2, they should train their own face detection network.
-
-Using datasets focused on surveillance footage such as ChokePoint (http://arma.sourceforge.net/chokepoint/) and SCFace (http://www.scface.org/) rather than OpenFace's celebrity images could be interesting. Students could generate new datasets of themselves using similar techniques.
-
-
-
-
-
-
-
-
-
-
-
-git clone https://github.com/davidsandberg/facenet.git
-install necessary Python modules with pip. Note: tensorflow==1.7 is important.
-Complete https://github.com/davidsandberg/facenet/wiki/Validate-on-lfw
-Note: functions from scipy.misc need to be replaced by functions from imageio and scikit-image to get step 4 of this link to work with modern versions of scipy.
-Complete https://github.com/davidsandberg/facenet/wiki/Train-a-classifier-on-own-images

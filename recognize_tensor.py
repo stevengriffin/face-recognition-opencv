@@ -13,7 +13,7 @@ from model import build_mlp
 def main():
     # construct the argument parser and parse the arguments
     ap = argparse.ArgumentParser()
-    ap.add_argument("-t", "--testdir", default="unprocessed_dataset/",
+    ap.add_argument("-t", "--testdir", default="test_dataset/",
             help="path to test dataset")
     ap.add_argument("-r", "--recognizer", default="output/recognizer.pt",
             help="path to model trained to recognize faces")
@@ -42,12 +42,12 @@ def main():
 
     running_total = 0
     running_corrects = 0
-    for step, (inputs, labels) in enumerate(dataloaders['train']):
+    for step, (inputs, labels) in enumerate(dataloaders['val']):
         outputs = recognizer.forward(inputs)
         _, preds = torch.max(outputs, 1)
         running_corrects += torch.sum(preds == labels.data)
         running_total += len(preds)
-    acc = running_corrects.double().item() / attrib_dict['train'].num_examples
+    acc = running_corrects.double().item() / attrib_dict['val'].num_examples
     print("Acc: " + str(acc))
 
 def recognize(image_file, le, recognizer, detector, embedder, min_confidence):
