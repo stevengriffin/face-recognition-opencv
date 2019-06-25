@@ -18,6 +18,8 @@ ReLU
 Dropout
 Fully-connected (output)
 
+================
+Preliminary Setup
 
 Open a terminal and clone the repository.
 
@@ -28,7 +30,7 @@ sudo apt-get install python-pip
 pip install virtualenvwrapper
 export WORKON_HOME=~/.virtualenvs
 mkdir -p $WORKON_HOME
-source /usr/local/bin/virtualenvwrapper.sh
+source $(which virtualenvwrapper.sh)
 mkvirtualenv face
 pip install imutils numpy opencv-python torch Pillow scikit-learn progressbar2 amcrest
 
@@ -36,36 +38,47 @@ Whenever you open a new terminal to work on the project, you'll need to switch t
 
 workon face
 
+=================
+Camera Setup
+
+Power and connect the cameras with ethernet to the DGX station using POE injectors. 
 
 Find the IP address, port, username, and password of the cameras. Learn to connect to the cameras, change their pan and tilt, save snapshots, and record streams with a Python script by reading https://python-amcrest.readthedocs.io/.
+
+=================
+Data Collection
 
 Build a dataset of surveillance footage of yourselves. Record footage of each person with a variety of angles and lighting conditions. Organize it into a dataset with the following directory structure.
 
 dataset/
     name1/
-        0001.jpg
-        0002.jpg
-        0003.jpg
+        00000.jpg
+        00001.jpg
+        00002.jpg
+        00003.jpg
         ...
     name2/
-        0001.jpg
-        0002.jpg
-        0003.jpg
+        00000.jpg
+        00001.jpg
+        00002.jpg
+        00003.jpg
         ...
     name3/
-        0001.jpg
-        0002.jpg
-        0003.jpg
+        00000.jpg
+        00001.jpg
+        00002.jpg
+        00003.jpg
         ...
-        
 
+You can look at https://www.pyimagesearch.com/2018/06/11/how-to-build-a-custom-face-recognition-dataset/ for inspiration, but you should record footage from the 1080p Amcrest camera rather than a webcam.
 
+==========
 
-M1: face detector (neural network)
+M1: face detector (pretrained neural network)
 
-M2: face embeddings generator (neural network)
+M2: face embeddings generator (pretrained neural network)
 
-M3: face embeddings -> labels classifier (many options: support vector machine, decision tree, k-nearest neighbors, neural network)
+M3: face embeddings -> labels classifier (build yourself, many options: support vector machine, decision tree, k-nearest neighbors, neural network)
 
 Generate face embeddings with OpenFace's neural network.
 Run extract_embeddings.py --dataset path/to/your/dataset 
@@ -102,4 +115,9 @@ production pipeline:
 when a new image arrives from the video cameras that might have a face, transfer it to the DGX and use M2 to find faces, if any exist, and if so, run M3 on the cropped image to recognize the names corresponding to the faces.
 
 updating dataset: Each time a new person is added to the face recognition system, we need to run M1 and M2 on the new images then retrain M3.
+
+==========
+
+Develop a pipeline to integrate with the reception face database. 
+
 
