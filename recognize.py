@@ -6,9 +6,6 @@ import pickle
 import cv2
 import os
 import glob
-import torch
-from load import build_dataloaders
-from model import build_mlp
 
 def main():
     # construct the argument parser and parse the arguments
@@ -19,7 +16,7 @@ def main():
             help="path to OpenCV's deep learning face detector")
     ap.add_argument("-m", "--embedding-model", default="nn4.small2.v1.t7",
             help="path to OpenCV's deep learning face embedding model")
-    ap.add_argument("-r", "--recognizer", default="output/recognizer.pt",
+    ap.add_argument("-r", "--recognizer", default="output/recognizer.pickle",
             help="path to model trained to recognize faces")
     ap.add_argument("-l", "--le", default="output/le.pickle",
             help="path to label encoder")
@@ -39,17 +36,7 @@ def main():
     embedder = cv2.dnn.readNetFromTorch(args["embedding_model"])
 
     # load the actual face recognition model along with the label encoder
-
-    dataloaders, attrib_dict = build_dataloaders()
-    device = torch.device('cpu')
-    recognizer = build_mlp(dataloaders, attrib_dict, device)
-    try:
-        recognizer.load_state_dict(torch.load(args['recognizer'], map_location=device))
-    except Exception as e:
-        print("Could not load MLP. " + str(e))
-        sys.exit()
-    recognizer.eval()
-    #recognizer = pickle.loads(open(args["recognizer"], "rb").read())
+    recognizer = pickle.loads(open(args["recognizer"], "rb").read())
     le = pickle.loads(open(args["le"], "rb").read())
 
     test_dir = args["testdir"]
@@ -65,6 +52,7 @@ def main():
     for i, image_file in enumerate(image_files):
         identity = os.path.basename(os.path.dirname(image_file))
         names = recognize(image_file, le, recognizer, detector, embedder, args["confidence"])
+        #print(names[0], identity)
         if len(names) > 0:
             if names[0] == identity:
                 num_correct += 1
@@ -94,7 +82,6 @@ def recognize(image_file, le, recognizer, detector, embedder, min_confidence):
     detections = detector.forward()
 
     # loop over the detections
-    # only first for now
     for i in range(0, detections.shape[2]):
             # extract the confidence (i.e., probability) associated with the
             # prediction
@@ -108,8 +95,9 @@ def recognize(image_file, le, recognizer, detector, embedder, min_confidence):
                     # face
                     box = detections[0, 0, i, 3:7] * np.array([w, h, w, h])
                     (startX, startY, endX, endY) = box.astype("int")
+
                     # extract the face ROI
-                    face = image #[startY:endY, startX:endX]
+                    face = image[startY:endY, startX:endX]
                     (fH, fW) = face.shape[:2]
 
                     # ensure the face width and height are sufficiently large
@@ -124,17 +112,12 @@ def recognize(image_file, le, recognizer, detector, embedder, min_confidence):
                             (0, 0, 0), swapRB=True, crop=False)
                     embedder.setInput(faceBlob)
                     vec = embedder.forward()
-                    inputs = torch.tensor(vec, dtype=torch.float)
-                    outputs = recognizer.forward(inputs)
-                    _, preds = torch.max(outputs, 1)
 
                     # perform classification to recognize the face
-                    #preds = recognizer.predict_proba(vec)[0]
-                    #j = np.argmax(preds)
-                    #proba = preds[j]
-                    name = le.classes_[preds]
-                    #print("name " + str(name))
-                    #print("j " + str(j))
+                    preds = recognizer.predict_proba(vec)[0]
+                    j = np.argmax(preds)
+                    proba = preds[j]
+                    name = le.classes_[j]
                     names.append(name)
 
             return names

@@ -23,8 +23,8 @@ Preliminary Setup
 
 Open a terminal and clone the repository.
 
-git clone TODO
-cd TODO
+git clone https://github.com/stevengriffin/face-recognition-opencv.git
+cd face-recognition-opencv
 
 sudo apt-get install python-pip
 pip install virtualenvwrapper
@@ -86,19 +86,9 @@ Run extract_embeddings.py --dataset path/to/your/dataset
 720p vs. 1080p
 Record time to process results
 
+===========
 
-
-
-
-
-
-
-
-
-
-
-Task 1: Use a pretrained network for generating face embeddings such as those provided in https://github.com/davidsandberg/facenet or https://github.com/cmusatyalab/openface and a pretrained network for detecting faces such as the ones used in OpenCV.
-
+Use a pretrained network for generating face embeddings such as those provided in https://github.com/davidsandberg/facenet or https://github.com/cmusatyalab/openface and a pretrained network for detecting faces such as the ones used in OpenCV.
 
 training pipeline:
 for each image in the training dataset, detect face in image with M1 and get bounding box.
@@ -119,5 +109,3 @@ updating dataset: Each time a new person is added to the face recognition system
 ==========
 
 Develop a pipeline to integrate with the reception face database. 
-
-
