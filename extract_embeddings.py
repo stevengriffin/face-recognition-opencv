@@ -34,9 +34,10 @@ detector = cv2.dnn.readNetFromCaffe(protoPath, modelPath)
 print("[INFO] loading face recognizer...")
 # embedder = cv2.dnn.readNetFromTorch(args["embedding_model"])
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 embedder = net.model
 embedder.load_state_dict(torch.load('net.pth'))
-embedder.cuda()
+embedder.to(device)
 embedder.eval()
 
 # grab the paths to the input images in our dataset
@@ -74,8 +75,10 @@ for (i, imagePath) in enumerate(imagePaths[:9999]):
     knownNames.append(name)
     blobs[i] = torch.from_numpy(imageBlob)
 '''
+
+inputs = torch.zeros(1000, 3, 96, 96)
 # loop over the image paths
-for (i, imagePath) in enumerate(imagePaths):
+for (i, imagePath) in enumerate(imagePaths[:1000]):
     # extract the person name from the image path
     print("[INFO] processing image {}/{}".format(i + 1,
                                                  len(imagePaths)))
@@ -93,6 +96,7 @@ for (i, imagePath) in enumerate(imagePaths):
         cv2.resize(image, (300, 300)), 1.0, (300, 300),
             (104.0, 177.0, 123.0), swapRB=False, crop=False)
 
+    '''
     # apply OpenCV's deep learning-based face detector to localize
     # faces in the input image
     detector.setInput(imageBlob)
@@ -113,30 +117,30 @@ for (i, imagePath) in enumerate(imagePaths):
             # the face
             box = detections[0, 0, i, 3:7] * np.array([w, h, w, h])
             (startX, startY, endX, endY) = box.astype("int")
+    '''
+    # extract the face ROI and grab the ROI dimensions
+    face = image  # [startY:endY, startX:endX]
+    (fH, fW) = face.shape[:2]
 
-            # extract the face ROI and grab the ROI dimensions
-            face = image  # [startY:endY, startX:endX]
-            (fH, fW) = face.shape[:2]
+    # ensure the face width and height are sufficiently large
+    if fW < 20 or fH < 20:
+        continue
 
-            # ensure the face width and height are sufficiently large
-            if fW < 20 or fH < 20:
-                continue
+    # construct a blob for the face ROI, then pass the blob
+    # through our face embedding model to obtain the 128-d
+    # quantification of the face
 
-            # construct a blob for the face ROI, then pass the blob
-            # through our face embedding model to obtain the 128-d
-            # quantification of the face
-            faceBlob = cv2.dnn.blobFromImage(face, 1.0 / 255,
-                (96, 96), (0, 0, 0), swapRB=True, crop=False)
-            vec = embedder(torch.from_numpy(faceBlob).cuda())
+    faceBlob = cv2.dnn.blobFromImage(face, 1.0 / 255,
+        (96, 96), (0, 0, 0), swapRB=True, crop=False)
+    inputs[i] = torch.from_numpy(faceBlob).to(device)
 
-            # embedder.setInput(faceBlob)
-            # vec = embedder.forward()
+vec = embedder(inputs)
 
-            # add the name of the person + corresponding face
-            # embedding to their respective lists
-            knownNames.append(name)
-            knownEmbeddings.append(vec.flatten())
-            total += 1
+    # add the name of the person + corresponding face
+    # embedding to their respective lists
+    #knownNames.append(name)
+    #knownEmbeddings.append(vec.flatten())
+    #total += 1
 
 # dump the facial embeddings + names to disk
 print("[INFO] serializing {} encodings...".format(total))
