@@ -36,6 +36,7 @@ print("[INFO] loading face recognizer...")
 
 embedder = net.model
 embedder.load_state_dict(torch.load('net.pth'))
+embedder.cuda()
 embedder.eval()
 
 # grab the paths to the input images in our dataset
@@ -49,10 +50,11 @@ knownNames = []
 
 # initialize the total number of faces processed
 total = 0
-
+'''
 blobs = torch.CharTensor(10000, 3, 300, 300)
+dims = []
 
-for (i, imagePath) in enumerate(imagePaths):
+for (i, imagePath) in enumerate(imagePaths[:9999]):
     # extract the person name from the image path
     print("[INFO] loading image {}/{}".format(i + 1,
                                                  len(imagePaths)))
@@ -63,16 +65,15 @@ for (i, imagePath) in enumerate(imagePaths):
     # dimensions
     image = cv2.imread(imagePath)
     image = imutils.resize(image, width=600)
-    (h, w) = image.shape[:2]
-    print(h, w)
 
     # construct a blob from the image
     imageBlob = cv2.dnn.blobFromImage(
         cv2.resize(image, (300, 300)), 1.0, (300, 300),
             (104.0, 177.0, 123.0), swapRB=False, crop=False)
-
+    dims.append(image.shape[:2])
+    knownNames.append(name)
     blobs[i] = torch.from_numpy(imageBlob)
-
+'''
 # loop over the image paths
 for (i, imagePath) in enumerate(imagePaths):
     # extract the person name from the image path
@@ -126,7 +127,7 @@ for (i, imagePath) in enumerate(imagePaths):
             # quantification of the face
             faceBlob = cv2.dnn.blobFromImage(face, 1.0 / 255,
                 (96, 96), (0, 0, 0), swapRB=True, crop=False)
-            vec = embedder(torch.from_numpy(faceBlob))
+            vec = embedder(torch.from_numpy(faceBlob).cuda())
 
             # embedder.setInput(faceBlob)
             # vec = embedder.forward()

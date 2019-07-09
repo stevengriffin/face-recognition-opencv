@@ -1,6 +1,6 @@
 imutils
 numpy
-opencv-python
+cv2
 torch
 Pillow
 scikit-learn
