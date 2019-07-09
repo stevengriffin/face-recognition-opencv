@@ -1,8 +1,0 @@
-imutils
-numpy
-cv2
-torch
-Pillow
-scikit-learn
-progressbar2
-amcrest

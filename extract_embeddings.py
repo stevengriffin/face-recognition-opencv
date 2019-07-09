@@ -76,14 +76,15 @@ for (i, imagePath) in enumerate(imagePaths[:9999]):
     blobs[i] = torch.from_numpy(imageBlob)
 '''
 
-inputs = torch.zeros(1000, 3, 96, 96)
+inputs = torch.zeros(1000, 3, 96, 96).to(device)
+imageBlobs = np.zeros((1000, 3, 300, 300))
 # loop over the image paths
 for (i, imagePath) in enumerate(imagePaths[:1000]):
     # extract the person name from the image path
     print("[INFO] processing image {}/{}".format(i + 1,
                                                  len(imagePaths)))
     name = imagePath.split(os.path.sep)[-2]
-
+    knownNames.append(name)
     # load the image, resize it to have a width of 600 pixels (while
     # maintaining the aspect ratio), and then grab the image
     # dimensions
@@ -92,32 +93,9 @@ for (i, imagePath) in enumerate(imagePaths[:1000]):
     (h, w) = image.shape[:2]
 
     # construct a blob from the image
-    imageBlob = cv2.dnn.blobFromImage(
+    imageBlobs[i] = cv2.dnn.blobFromImage(
         cv2.resize(image, (300, 300)), 1.0, (300, 300),
             (104.0, 177.0, 123.0), swapRB=False, crop=False)
-
-    '''
-    # apply OpenCV's deep learning-based face detector to localize
-    # faces in the input image
-    detector.setInput(imageBlob)
-    detections = detector.forward()
-
-    # ensure at least one face was found
-    if len(detections) > 0:
-        # we're making the assumption that each image has only ONE
-        # face, so find the bounding box with the largest probability
-        i = np.argmax(detections[0, 0, :, 2])
-        confidence = detections[0, 0, i, 2]
-
-        # ensure that the detection with the largest probability also
-        # means our minimum probability test (thus helping filter out
-        # weak detections)
-        if confidence > args["confidence"]:
-            # compute the (x, y)-coordinates of the bounding box for
-            # the face
-            box = detections[0, 0, i, 3:7] * np.array([w, h, w, h])
-            (startX, startY, endX, endY) = box.astype("int")
-    '''
     # extract the face ROI and grab the ROI dimensions
     face = image  # [startY:endY, startX:endX]
     (fH, fW) = face.shape[:2]
@@ -134,11 +112,33 @@ for (i, imagePath) in enumerate(imagePaths[:1000]):
         (96, 96), (0, 0, 0), swapRB=True, crop=False)
     inputs[i] = torch.from_numpy(faceBlob).to(device)
 
+# apply OpenCV's deep learning-based face detector to localize
+# faces in the input image
+detector.setInput(imageBlobs)
+detections = detector.forward()
+
+'''
+    # ensure at least one face was found
+    if len(detections) > 0:
+        # we're making the assumption that each image has only ONE
+        # face, so find the bounding box with the largest probability
+        i = np.argmax(detections[0, 0, :, 2])
+        confidence = detections[0, 0, i, 2]
+
+        # ensure that the detection with the largest probability also
+        # means our minimum probability test (thus helping filter out
+        # weak detections)
+        if confidence > args["confidence"]:
+            # compute the (x, y)-coordinates of the bounding box for
+            # the face
+            box = detections[0, 0, i, 3:7] * np.array([w, h, w, h])
+            (startX, startY, endX, endY) = box.astype("int")
+'''
+
 vec = embedder(inputs)
 
     # add the name of the person + corresponding face
     # embedding to their respective lists
-    #knownNames.append(name)
     #knownEmbeddings.append(vec.flatten())
     #total += 1
 
